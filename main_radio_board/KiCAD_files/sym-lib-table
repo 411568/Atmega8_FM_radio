@@ -1,0 +1,4 @@
+(sym_lib_table
+  (lib (name "tea5767")(type "Legacy")(uri "${KIPRJMOD}/symbols_and_footprints/tea5767.lib")(options "")(descr ""))
+  (lib (name "PAM_MODULE")(type "KiCad")(uri "${KIPRJMOD}/symbols_and_footprints/PAM_MODULE.kicad_sym")(options "")(descr ""))
+)

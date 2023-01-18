@@ -1,0 +1,4 @@
+(fp_lib_table
+  (lib (name "footprint")(type "KiCad")(uri "${KIPRJMOD}/symbols_and_footprints/kicad-library-custom-master/footprint.pretty")(options "")(descr ""))
+  (lib (name "symbols_and_footprints")(type "KiCad")(uri "${KIPRJMOD}/symbols_and_footprints")(options "")(descr ""))
+)
