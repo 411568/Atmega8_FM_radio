@@ -1,0 +1,4 @@
+https://github.com/eziya/AVR_TEA5767
+
+this is a TEA5767 .c library written for an atmega128
+I have to change the TWI to suit the atmega
