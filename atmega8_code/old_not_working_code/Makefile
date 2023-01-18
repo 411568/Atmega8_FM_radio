@@ -1,0 +1,191 @@
+
+##########------------------------------------------------------##########
+##########                 Szczegóły projektu                   ##########
+##########        Sprawdź je przy każdym nowym projekcie        ##########
+##########------------------------------------------------------##########
+
+MCU   = atmega8
+F_CPU = 8000000
+BAUD = 9600
+## Sprawdź swoje szczęście z prędkościami BAUD = 19200 lub 38400.
+
+## W tym pliku znajduje się funkcja main()
+MAIN = main.c
+
+## Jeżeli podzielisz program na kilka plików .c i .h,
+## to tutaj dopisz dodatkowe źrodła (w tym samym katalogu)
+## Jednak nie jest to zawsze konieczne.
+LOCAL_SOURCE = i2c.c
+
+## Tutaj możesz podać kolejne katalogi (z wieloma plikami .c)
+EXTRA_SOURCE_DIR = /home/debian/Documents/avrProgrammingBook/AVR-Programming-Library/
+EXTRA_SOURCE_FILES =
+
+
+##########------------------------------------------------------##########
+##########               Ustawienia programatora                ##########
+##########        Ustal je raz, a potem o nich zapomnij         ##########
+##########   (Można je nadpisać. Zajrzyj na koniec pliku.)      ##########
+##########------------------------------------------------------##########
+
+PROGRAMMER_TYPE = usbasp
+# dodatkowe parametry dla avrdude: liczba bodów, typ układu, znacznik -F i inne.
+PROGRAMMER_ARGS =
+
+##########------------------------------------------------------##########
+##########                Magia pliku Makefile!                 ##########
+##########       Podsumowanie:                                  ##########
+##########          Chcemy uzyskać plik .hex                    ##########
+##########       Skompiluj plik źródłowy do formatu .elf        ##########
+##########       Skonwertuj plik .elf do pliku .hex             ##########
+##########       Nie musisz zmienić poniższych zapisów          ##########
+##########------------------------------------------------------##########
+
+## Dafinicja programów i lokalizacji
+CC = avr-gcc
+OBJCOPY = avr-objcopy
+OBJDUMP = avr-objdump
+AVRSIZE = avr-size
+AVRDUDE = avrdude
+
+## Opcja kompilacji, ciekawych odsyłam do man avr-gcc.
+CFLAGS = -mmcu=$(MCU) -DF_CPU=$(F_CPU)UL -DBAUD=$(BAUD) -Os -I. -I$(EXTRA_SOURCE_DIR)
+CFLAGS += -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
+CFLAGS += -Wall -Wstrict-prototypes
+CFLAGS += -g -ggdb
+CFLAGS += -ffunction-sections -fdata-sections -Wl,--gc-sections -Wl,--relax
+CFLAGS += -std=gnu99
+## CFLAGS += -Wl,-u,vfprintf -lprintf_flt -lm  ## do wypisywanie liczb zmiennoprzecinkowych
+## CFLAGS += -Wl,-u,vfprintf -lprintf_min      ## mniejsza funkcja printf
+
+## Połącz ze sobą główny i dodatkowe pliki źródłowe
+TARGET = $(strip $(basename $(MAIN)))
+SRC = $(TARGET).c
+EXTRA_SOURCE = $(addprefix $(EXTRA_SOURCE_DIR), $(EXTRA_SOURCE_FILES))
+SRC += $(EXTRA_SOURCE)
+SRC += $(LOCAL_SOURCE)
+
+## Lista wszystkich plików nagłówkowych
+HEADERS = $(SRC:.c=.h)
+
+## Dla każdego pliku .c, skompiluk plik obiektowy .o
+OBJ = $(SRC:.c=.o)
+
+## Uogólnione cele pliku Makefile.  (Wymagany jest tylko plik .hex)
+all: $(TARGET).hex
+
+%.hex: %.elf
+	$(OBJCOPY) -R .eeprom -O ihex $< $@
+
+%.elf: $(SRC)
+	$(CC) $(CFLAGS) $(SRC) --output $@
+
+%.eeprom: %.elf
+	$(OBJCOPY) -j .eeprom --change-section-lma .eeprom=0 -O ihex $< $@
+
+debug:
+	@echo
+	@echo "Source files:"   $(SRC)
+	@echo "MCU, F_CPU, BAUD:"  $(MCU), $(F_CPU), $(BAUD)
+	@echo
+
+# Opcjonalnie utwórz plik listingu na podstawi pliku .elf.
+# W ten sposób powstanie przybliżona, asemblerowa wersja Twojego kodu.
+# Przydaje się ona do debugowania części kodu ze ścisłymi zależnościami czasowymi,
+# albo do sprawdzenia, czy kompilator pracuje właściwie.
+disassemble: $(TARGET).lst
+
+disasm: disassemble
+
+eeprom: $(TARGET).eeprom
+
+%.lst: %.elf
+	$(OBJDUMP) -S $< > $@
+
+# Opcjonalnie podaj wielkość wynikowego programu
+size:  $(TARGET).elf
+	$(AVRSIZE) -C --mcu=$(MCU) $(TARGET).elf
+
+clean:
+	rm -f $(TARGET).elf $(TARGET).hex $(TARGET).obj \
+	$(TARGET).o $(TARGET).d $(TARGET).eep $(TARGET).lst \
+	$(TARGET).lss $(TARGET).sym $(TARGET).map $(TARGET)~ \
+	$(TARGET).eeprom
+
+squeaky_clean:
+	rm -f *.elf *.hex *.obj *.o *.d *.eep *.lst *.lss *.sym *.map *~
+
+##########------------------------------------------------------##########
+##########            Szczegóły dotyczące programatora          ##########
+##########             Zapisywanie kodu do układu AVR           ##########
+##########               za pomocą programu avrdude             ##########
+##########------------------------------------------------------##########
+
+flash: $(TARGET).hex
+	$(AVRDUDE) -c $(PROGRAMMER_TYPE) -p $(MCU) $(PROGRAMMER_ARGS) -U flash:w:$<
+
+## Alias
+program: flash
+
+flash_eeprom: $(TARGET).eeprom
+	$(AVRDUDE) -c $(PROGRAMMER_TYPE) -p $(MCU) $(PROGRAMMER_ARGS) -U eeprom:w:$<
+
+avrdude_terminal:
+	$(AVRDUDE) -c $(PROGRAMMER_TYPE) -p $(MCU) $(PROGRAMMER_ARGS) -nt
+
+## Jeżeli używasz wielu różnych programatorów,
+## to możesz je tutaj zdefiniować, co ułatwia późniejsze przełączanie.
+## Wywołanie wygląda mniej więcej tak: `make flash_arduinoISP`
+flash_usbtiny: PROGRAMMER_TYPE = usbtiny
+flash_usbtiny: PROGRAMMER_ARGS =  # USBTiny działa bez dodatkowych parametrów
+flash_usbtiny: flash
+
+flash_usbasp: PROGRAMMER_TYPE = usbasp
+flash_usbasp: PROGRAMMER_ARGS =  # USBasp działa bez dodatkowych parametrów
+flash_usbasp: flash
+
+flash_arduinoISP: PROGRAMMER_TYPE = avrisp
+flash_arduinoISP: PROGRAMMER_ARGS = -b 19200 -P /dev/ttyACM0
+## (dla systemów Windows) flash_arduinoISP: PROGRAMMER_ARGS = -b 19200 -P com5
+flash_arduinoISP: flash
+
+flash_109: PROGRAMMER_TYPE = avr109
+flash_109: PROGRAMMER_ARGS = -b 9600 -P /dev/ttyUSB0
+flash_109: flash
+
+##########------------------------------------------------------##########
+##########  Ustawienia bezpiecznikow i wartości domyślne        ##########
+##########------------------------------------------------------##########
+
+## wartości domyślne dla układów Mega 48, 88, 168, 328
+LFUSE = 0x62
+HFUSE = 0xdf
+EFUSE = 0x00
+
+## Ustawienia ogólne
+FUSE_STRING = -U lfuse:w:$(LFUSE):m -U hfuse:w:$(HFUSE):m -U efuse:w:$(EFUSE):m
+
+fuses:
+	$(AVRDUDE) -c $(PROGRAMMER_TYPE) -p $(MCU) \
+	           $(PROGRAMMER_ARGS) $(FUSE_STRING)
+show_fuses:
+	$(AVRDUDE) -c $(PROGRAMMER_TYPE) -p $(MCU) $(PROGRAMMER_ARGS) -nv
+
+## Wywołanie bez dodatkowych definicji przyjmuje wartości domyślne
+set_default_fuses:  FUSE_STRING = -U lfuse:w:$(LFUSE):m -U hfuse:w:$(HFUSE):m -U efuse:w:$(EFUSE):m
+set_default_fuses:  fuses
+
+## Przełączenie bajtu bezpiecznowego do trybu pełnej prędkości
+## Uwaga: W nowych układach można też zmienić programowo
+set_fast_fuse: LFUSE = 0xE2
+set_fast_fuse: FUSE_STRING = -U lfuse:w:$(LFUSE):m
+set_fast_fuse: fuses
+
+## Ustawienie bezpiecznika EESAVE zabezpiecza pamięć EEPROM w czasie zapisywania programu
+set_eeprom_save_fuse: HFUSE = 0xD7
+set_eeprom_save_fuse: FUSE_STRING = -U hfuse:w:$(HFUSE):m
+set_eeprom_save_fuse: fuses
+
+## Czyszczenie bezpiecznika EESAVE
+clear_eeprom_save_fuse: FUSE_STRING = -U hfuse:w:$(HFUSE):m
+clear_eeprom_save_fuse: fuses
