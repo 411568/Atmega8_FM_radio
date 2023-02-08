@@ -1,6 +1,6 @@
 // Funkcje obsługujące komunikację i2c
 #include <avr/io.h>
-#include "pinDefines.h"
+//#include "pinDefines.h"
 
 void initI2C(void);
                   /* Włącza oporniki podciągające i ustala szybkość magistrali 

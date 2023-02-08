@@ -2,7 +2,7 @@
 #include <util/delay.h>
 #include <avr/power.h>
 
-#include "pinDefines.h"
+//#include "pinDefines.h"
 #include "i2c.h"
 
 #define _BV(bit)			(1 << (bit))
