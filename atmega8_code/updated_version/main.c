@@ -10,6 +10,11 @@
 #include "i2c_lib.c"
 
 
+
+#define _BV(bit)			(1 << (bit))
+#define bit_is_set(sfr, bit)		(_SFR_BYTE(sfr) & _BV(bit))
+#define bit_is_clear(sfr, bit)		(!(_SFR_BYTE(sfr) & _BV(bit)))
+
 #define TEA5767_ADDRESS_W               0b11000000	 //address for writing to the TEA5767 (0xC0)
 
 
@@ -63,5 +68,32 @@ int main(void)
 {
     //setup the I2C, start TEA5767 with frequency from the table
 	setup();
+
+	//setup GPIO
+
+
+
+	//main loop
+	while(1)
+	{
+		// ------ SEARCH UP ------ //
+		if(bit_is_clear(PIND, button_1)) //change pin
+		{
+			_delay_ms(50); //debounce
+			if(bit_is_clear(PIND, button_1))
+			{
+				//search_up
+			}
+		}
+		// ------ SEARCH DOWN ------ //
+		if(bit_is_clear(PIND, button_1)) //change pin
+		{
+			_delay_ms(50); //debounce
+			if(bit_is_clear(PIND, button_1))
+			{
+				//search_down
+			}
+		}
+	}
 }
 
