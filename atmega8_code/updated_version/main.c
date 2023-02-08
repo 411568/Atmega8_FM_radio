@@ -7,24 +7,23 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "TEA5767.c"
+#include "i2c_lib.c"
+
 
 #define TEA5767_ADDRESS_W               0b11000000	 //address for writing to the TEA5767 (0xC0)
-//#define TEA5767_ADDRESS_W               0b01100000	 //address for writing to the TEA5767 (0xC0)
-#define PRESET1	89.9
-#define PRESET2	95.1
-#define PRESET3	95.7
-#define PRESET4	97.5
-#define PRESET5	106.7
 
-double radioFreq = PRESET5;
+
+double radioFreq = PRESET1;
 uint8_t rcvCmd = 0;
 char msg[150];
 
 //global variables
 double frequency;
+
+//preset radio stations
 double frequencytab[] = {89.2, 91.5, 95.7, 96.4, 97.6, 99.7, 102.2, 104.5, 105, 106.7};
-int station_number;
+
+
 // send the frequency to the TEA module
 void send_freq()
 {
@@ -45,6 +44,7 @@ void send_freq()
 	I2C_Write(0x10);
 	I2C_Write(0x00);
     I2C_Stop();
+
     _delay_ms(10);
 }
 
@@ -54,30 +54,14 @@ void setup()
 
     //starting frequency from the table
 	frequency = 89.2;
-	station_number = 0;
 	send_freq();
+
 	_delay_ms(100);
 }
 
 int main(void)
 {
+    //setup the I2C, start TEA5767 with frequency from the table
 	setup();
-
-    /*
-    //check if initialized properly
-    //
-	if(!TEA5767_Init(radioFreq))
-	{
-        return -1;
-	}
-	
-    //scan up for station
-    //TEA5767_ScanFreq(TEA5767_SCAN_UP);
-
-    // MAIN LOOP
-    while (1) 
-    {	
-        ;
-    }*/
 }
 
