@@ -46,8 +46,18 @@ void search(uint8_t direction)
 	unsigned char frequencyH;
 	unsigned char frequencyL;
 	unsigned int frequencyB;
+    double temp = 88.0;
 
-	frequencyB = 4 * (frequency * 1000000 + 225000) / 32768;
+    if(direction == 1)
+    {
+        temp = frequency + 0.1; 
+    }
+    else
+    {
+        temp = frequency - 0.1; 
+    }
+
+	frequencyB = 4 * (temp * 1000000 + 225000) / 32768;
 	frequencyH = frequencyB >> 8;
 	frequencyL = frequencyB & 0xFF;
 
@@ -63,9 +73,12 @@ void search(uint8_t direction)
     {
         I2C_Write(0b01010000); //search down with mid adc
     }
-    I2C_Write(0b00010000); //basic ic setup
-    I2C_Write(0b00000000); //don't care
+	I2C_Write(0x10);
+	I2C_Write(0x00);
 
+    I2C_Stop();
+
+    _delay_ms(10);
 }
 
 void setup()
