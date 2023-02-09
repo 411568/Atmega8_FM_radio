@@ -15,9 +15,8 @@ MAIN = main.c
 ## Jeżeli podzielisz program na kilka plików .c i .h,
 ## to tutaj dopisz dodatkowe źrodła (w tym samym katalogu)
 ## Jednak nie jest to zawsze konieczne.
-LOCAL_SOURCE = i2c_lib.c
-LOCAL_SOURCE = TEA5767.c
-LOCAL_SOURCE = TEA5767.h
+##LOCAL_SOURCE = i2c_lib.c
+##LOCAL_SOURCE = tea5767.c
 
 ## Tutaj możesz podać kolejne katalogi (z wieloma plikami .c)
 EXTRA_SOURCE_DIR = /home/debian/Documents/avrProgrammingBook/AVR-Programming-Library/
