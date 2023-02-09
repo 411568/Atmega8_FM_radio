@@ -79,6 +79,9 @@ void search(uint8_t direction)
     I2C_Stop();
 
     _delay_ms(10);
+
+    //TODO 
+    //read frequency that tea5767 found and save it so that is searches from that one next
 }
 
 void setup()
