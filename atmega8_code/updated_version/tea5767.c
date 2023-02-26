@@ -40,6 +40,26 @@ void send_freq()
     _delay_ms(10);
 }
 
+void read_freq()
+{
+    double frequency_temp;
+
+    //data transmition
+    I2C_Start();
+    uint8_t byte1 = I2C_Read(1);
+    uint8_t byte2 = I2C_Read(1);
+    uint8_t byte3 = I2C_Read(1);
+    uint8_t byte4 = I2C_Read(1);
+    uint8_t byte5 = I2C_Read(1);
+    I2C_Stop();
+
+    _delay_ms(10);
+
+    // get the frequency from PLL settings
+    frequency_temp = (((byte1 & 0x3F) << 8) + byte2) * 32768 / 4 - 225000;
+    frequency = (frequency_temp / 100000 + 0.5) / 10;
+}
+
 
 void search(uint8_t direction)
 {

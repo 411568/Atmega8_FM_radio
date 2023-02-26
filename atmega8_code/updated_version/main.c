@@ -12,8 +12,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "tea5767.c"
+//#include "tea5767.c"
 #include "encoder.c"
+#include "led_screen.c"
 
 
 #define _BV(bit)			(1 << (bit))
@@ -57,16 +58,20 @@ int main(void)
             {
                 if(frequency < 108.0)
                 {
-                    frequency += 0.1;
+                    frequency += 1.0;
                     send_freq(); 
+                    display(); //display the current frequency
+                    search(1); //search up from the set freq
                 }
             }
             else if( (val == 2 && val_tmp == 0) || (val == 1 && val_tmp == 3) )
             {
                 if(frequency > 88.0)
                 {
-                    frequency -= 0.1;
+                    frequency -= 1.0;
                     send_freq();
+                    display(); //display the current frequency
+                    search(0); //search down from the set freq
                 }
             }
         }
@@ -80,9 +85,10 @@ int main(void)
 			_delay_ms(15); //debounce
 			if(bit_is_clear(button_1_port, button_1_pin))
 			{
-                PORTD ^= (1 << PD0);
                 search(1);
                 _delay_ms(500);
+                read_freq();
+                display(); //display the current frequency
 			}
 		}
 
@@ -93,9 +99,10 @@ int main(void)
 			_delay_ms(15); //debounce
 			if(bit_is_clear(button_2_port, button_2_pin))
 			{
-                PORTD ^= (1 << PD0);
                 search(0);
                 _delay_ms(500);
+                read_freq();
+                display(); //display the current frequency
 			}
 		}
 	}
