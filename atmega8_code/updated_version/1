@@ -143,8 +143,8 @@ int main(void)
                 else
                     station_number = 0;
                 frequency = frequencytab[station_number];
-                display(frequency); //display the current frequency
                 send_freq();
+                display(frequency); //display the current frequency
 			}
 		}
 
@@ -160,8 +160,8 @@ int main(void)
                 else
                     station_number = 10;
                 frequency = frequencytab[station_number];
-                display(frequency); //display the current frequency
                 send_freq();
+                display(frequency); //display the current frequency
 			}
 		}
 	}
