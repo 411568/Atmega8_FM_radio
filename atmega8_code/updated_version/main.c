@@ -54,11 +54,11 @@ int main(void)
     uint8_t val = 0;
     val_tmp = read_encoder();
 
-    //led start
-    animate();
-
     //for station tab
     uint8_t station_number = 0;
+
+    //enable led display
+    display(frequency);
 
 	//main loop
 	while(1)
