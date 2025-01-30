@@ -210,7 +210,7 @@ This board is used as my front panel for controls and displaying the current fre
 
 ![3d view](/images/pcb_image_3.PNG)
 
-![3d view](s/images/3d_view_2.PNG)
+![3d view](/images/3d_view_2.PNG)
 
 
 <h2>💻 Parts list</h2>
